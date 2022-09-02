@@ -34,11 +34,21 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (INTERNAL_looped == value)
+				{
+					return;
+				}
+				bool shouldReplay = false;
 				if (hasStarted)
 				{
-					throw new InvalidOperationException();
+					Stop();
+					shouldReplay = true;
 				}
 				INTERNAL_looped = value;
+				if (shouldReplay)
+				{
+					Play();
+				}
 			}
 		}
 
