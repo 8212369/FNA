@@ -20,7 +20,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Microsoft.Xna.Framework
 {
-	internal static class FNAPlatform
+	public static class FNAPlatform
 	{
 		#region Static Constructor
 
@@ -155,7 +155,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Public Static Variables
 
-		public static readonly string TitleLocation;
+		public static string TitleLocation;
 
 		/* Setup Text Input Control Character Arrays
 		 * (Only 7 control keys supported at this time)
