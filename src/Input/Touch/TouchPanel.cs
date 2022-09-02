@@ -67,11 +67,26 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			set;
 		}
 
+		public static bool MouseAsTouch
+		{
+			get => _MouseAsTouch;
+			set {
+				if (!value && TouchDeviceExists)
+				{
+					TouchDeviceExists = false;
+				}
+
+				_MouseAsTouch = value;
+			}
+		}
+
+
 		#endregion
 
 		#region Internal Static Variables
 
 		internal static bool TouchDeviceExists;
+		internal static bool _MouseAsTouch = false;
 
 		#endregion
 

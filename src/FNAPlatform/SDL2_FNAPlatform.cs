@@ -909,6 +909,40 @@ namespace Microsoft.Xna.Framework
 				else if (evt.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
 				{
 					Mouse.INTERNAL_onClicked(evt.button.button - 1);
+
+					if (TouchPanel.MouseAsTouch)
+					{
+						// Windows only notices a touch screen once it's touched
+						TouchPanel.TouchDeviceExists = true;
+
+						TouchPanel.INTERNAL_onTouchEvent(1, TouchLocationState.Pressed,
+							(float)evt.button.x / Mouse.INTERNAL_WindowWidth,
+							(float)evt.button.y / Mouse.INTERNAL_WindowHeight,
+							0.0f,
+							0.0f);
+					}
+				}
+				else if (evt.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+				{
+					if (TouchPanel.MouseAsTouch)
+					{
+						TouchPanel.INTERNAL_onTouchEvent(1, TouchLocationState.Moved,
+							(float)evt.button.x / Mouse.INTERNAL_WindowWidth,
+							(float)evt.button.y / Mouse.INTERNAL_WindowHeight,
+							(float)evt.motion.x / Mouse.INTERNAL_WindowWidth,
+							(float)evt.motion.y / Mouse.INTERNAL_WindowHeight);
+					}
+				}
+				else if (evt.type == SDL.SDL_EventType.SDL_MOUSEBUTTONUP)
+				{
+					if (TouchPanel.MouseAsTouch)
+					{
+						TouchPanel.INTERNAL_onTouchEvent(1, TouchLocationState.Released,
+							(float)evt.button.x / Mouse.INTERNAL_WindowWidth,
+							(float)evt.button.y / Mouse.INTERNAL_WindowHeight,
+							0.0f,
+							0.0f);
+					}
 				}
 				else if (evt.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
 				{
@@ -957,6 +991,10 @@ namespace Microsoft.Xna.Framework
 				// Various Window Events...
 				else if (evt.type == SDL.SDL_EventType.SDL_WINDOWEVENT)
 				{
+					if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE)
+					{
+						game.RunApplication = false;
+					} else
 					// Window Focus
 					if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED)
 					{
@@ -2236,27 +2274,42 @@ namespace Microsoft.Xna.Framework
 
 		public static unsafe void UpdateTouchPanelState()
 		{
-			// Poll the touch device for all active fingers
-			long touchDevice = SDL.SDL_GetTouchDevice(0);
-			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
+			if (TouchPanel.MouseAsTouch)
 			{
-				SDL.SDL_Finger* finger = (SDL.SDL_Finger*) SDL.SDL_GetTouchFinger(touchDevice, i);
-				if (finger == null)
-				{
-					// No finger found at this index
-					TouchPanel.SetFinger(i, TouchPanel.NO_FINGER, Vector2.Zero);
-					continue;
-				}
+				uint flags = SDL.SDL_GetMouseState(out int x, out int y);
 
-				// Send the finger data to the TouchPanel
-				TouchPanel.SetFinger(
-					i,
-					(int) finger->id,
-					new Vector2(
-						(float) Math.Round(finger->x * TouchPanel.DisplayWidth),
-						(float) Math.Round(finger->y * TouchPanel.DisplayHeight)
-					)
-				);
+				if ((ButtonState)(flags & SDL.SDL_BUTTON_LMASK) == ButtonState.Pressed)
+				{
+					TouchPanel.SetFinger(0, 1, new Vector2(x, y));
+				}
+				else
+				{
+					TouchPanel.SetFinger(0, TouchPanel.NO_FINGER, Vector2.Zero);
+				}
+			} else
+			{
+				// Poll the touch device for all active fingers
+				long touchDevice = SDL.SDL_GetTouchDevice(0);
+				for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
+				{
+					SDL.SDL_Finger* finger = (SDL.SDL_Finger*)SDL.SDL_GetTouchFinger(touchDevice, i);
+					if (finger == null)
+					{
+						// No finger found at this index
+						TouchPanel.SetFinger(i, TouchPanel.NO_FINGER, Vector2.Zero);
+						continue;
+					}
+
+					// Send the finger data to the TouchPanel
+					TouchPanel.SetFinger(
+						i,
+						(int)finger->id,
+						new Vector2(
+							(float)Math.Round(finger->x * TouchPanel.DisplayWidth),
+							(float)Math.Round(finger->y * TouchPanel.DisplayHeight)
+						)
+					);
+				}
 			}
 		}
 
