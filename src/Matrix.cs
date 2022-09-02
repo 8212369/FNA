@@ -506,7 +506,7 @@ namespace Microsoft.Xna.Framework
 				float.IsNaN(M43) ||
 				float.IsNaN(M44)	)
 			{
-				throw new InvalidOperationException("Matrix contains NaNs!");
+				//throw new InvalidOperationException("Matrix contains NaNs!");
 			}
 		}
 

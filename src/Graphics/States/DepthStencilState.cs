@@ -213,19 +213,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public DepthStencilState Presets
 
-		public static readonly DepthStencilState Default = new DepthStencilState(
+		public static DepthStencilState Default = new DepthStencilState(
 			"DepthStencilState.Default",
 			true,
 			true
 		);
 
-		public static readonly DepthStencilState DepthRead = new DepthStencilState(
+		public static DepthStencilState DepthRead = new DepthStencilState(
 			"DepthStencilState.DepthRead",
 			true,
 			false
 		);
 
-		public static readonly DepthStencilState None = new DepthStencilState(
+		public static DepthStencilState None = new DepthStencilState(
 			"DepthStencilState.None",
 			false,
 			false
