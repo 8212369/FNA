@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.IO;
 using System.Text.RegularExpressions;
 #endregion
 
@@ -195,7 +196,32 @@ namespace Microsoft.Xna.Framework.Content
 						string readerTypeString = originalReaderTypeString;
 						readerTypeString = PrepareType(readerTypeString);
 
-						Type l_readerType = Type.GetType(readerTypeString);
+						Type l_readerType = null;
+						try
+						{
+							l_readerType = Type.GetType(readerTypeString);
+						} catch { }
+
+						if (l_readerType == null)
+						{
+							// Workaround for .NET Core and folder structure of the phone app
+							// Because .NET new only can get DLLs either in NuGet or you tell it first when build
+							// NOTE: Key and version is not yet checked
+							string[] components = readerTypeString.Split(',');
+							for (int l = 0; l < components.Length; l++)
+							{
+								components[l] = new Regex("[*'\",_&#^@!]").Replace(components[l].Trim(), "_");
+							}
+
+							Assembly[] asmList = AppDomain.CurrentDomain.GetAssemblies();
+							foreach (Assembly asm in asmList)
+							{
+								if (asm.GetName().Name == components[1])
+								{
+									l_readerType = asm.GetType(components[0]);
+								}
+							}
+						}
 						if (l_readerType != null)
 						{
 							ContentTypeReader typeReader;

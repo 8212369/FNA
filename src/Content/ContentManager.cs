@@ -210,6 +210,10 @@ namespace Microsoft.Xna.Framework.Content
 				}
 			}
 			// Load the asset.
+			if (assetName.Contains("levels"))
+			{
+				int a = 5;
+			}
 			result = ReadAsset<T>(assetName, null);
 			loadedAssets[key] = result;
 			return result;

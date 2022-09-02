@@ -339,9 +339,16 @@ namespace Microsoft.Xna.Framework.Content
 				);
 			}
 			ContentTypeReader typeReader = typeReaders[typeReaderIndex - 1];
-			T result = (T) typeReader.Read(this, default(T));
-			RecordDisposable(result);
-			return result;
+
+			try
+			{
+				T result = (T)typeReader.Read(this, default(T));
+				RecordDisposable(result);
+				return result;
+			} catch (InvalidCastException exception)
+			{
+				throw new ContentLoadException(exception.Message);
+			}
 		}
 
 		private void RecordDisposable<T>(T result)
