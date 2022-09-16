@@ -307,6 +307,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Destructor
+		~Effect()
+		{
+			Dispose(false);
+		}
+
+		#endregion
+
 		#region Protected Methods
 
 		protected override void Dispose(bool disposing)

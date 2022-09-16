@@ -208,6 +208,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Destructor
+
+		~RenderTargetCube()
+		{
+			Dispose(false);
+		}
+
+		#endregion
+
 		#region Protected Dispose Method
 
 		/// <summary>

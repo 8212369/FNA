@@ -14,7 +14,7 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	public sealed class GraphicsAdapter
+	public class GraphicsAdapter
 	{
 		#region Public Properties
 
@@ -162,7 +162,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Constructor
 
-		internal GraphicsAdapter(
+		public GraphicsAdapter(
 			DisplayModeCollection modes,
 			string name,
 			string description

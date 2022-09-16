@@ -122,6 +122,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Destructor
+		~IndexBuffer()
+		{
+			Dispose(false);
+		}
+
+		#endregion
+
 		#region Protected Dispose Method
 
 		protected override void Dispose(bool disposing)
