@@ -132,8 +132,8 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				int levelDataSizeInBytes = reader.ReadInt32();
 				byte[] levelData = null; // Don't assign this quite yet...
-				int levelWidth = width >> level;
-				int levelHeight = height >> level;
+				int levelWidth = Math.Max(width >> level, 1);
+				int levelHeight = Math.Max(height >> level, 1);
 				if (level >= levelCountOutput)
 				{
 					continue;
