@@ -87,6 +87,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static bool TouchDeviceExists;
 		internal static bool _MouseAsTouch = false;
+		internal static int LastActiveTouchId = 0;
 
 		#endregion
 

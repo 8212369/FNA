@@ -35,6 +35,7 @@ namespace Microsoft.Xna.Framework
 		) == "1";
 
 		private static bool SupportsGlobalMouse;
+		private static bool PhoneBackButtonPressed = false;
 
 		#endregion
 
@@ -311,6 +312,14 @@ namespace Microsoft.Xna.Framework
 
 		public static GameWindow CreateWindow()
 		{
+			// Set the hint so that game and test window does not change the orientation
+			// For example, Vulkan backend try to create a temporary window to test feature,
+			// that cause a surface destroy
+			SDL.SDL_SetHint(
+				SDL.SDL_HINT_ORIENTATIONS,
+				"LandscapeRight"
+			);
+
 			// Set and initialize the SDL2 window
 			SDL.SDL_WindowFlags initFlags = (
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
@@ -386,6 +395,13 @@ namespace Microsoft.Xna.Framework
 					SDL.SDL_GetError()
 				);
 			}
+
+			// Restore the hints for future resize
+			SDL.SDL_SetHint(
+				SDL.SDL_HINT_ORIENTATIONS,
+				"LandscapeLeft LandscapeRight Portrait"
+			);
+
 			INTERNAL_SetIcon(window, title);
 
 			// Disable the screensaver.
@@ -461,6 +477,7 @@ namespace Microsoft.Xna.Framework
 				if ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) != 0)
 				{
 					SDL.SDL_SetWindowFullscreen(window, 0);
+
 					resize = true;
 				}
 				else
@@ -477,6 +494,7 @@ namespace Microsoft.Xna.Framework
 				{
 					SDL.SDL_RestoreWindow(window);
 					SDL.SDL_SetWindowSize(window, clientWidth, clientHeight);
+
 					center = true;
 				}
 			}
@@ -496,6 +514,7 @@ namespace Microsoft.Xna.Framework
 			if (resultDeviceName != screenDeviceName)
 			{
 				SDL.SDL_SetWindowFullscreen(window, 0);
+
 				resultDeviceName = screenDeviceName;
 				center = true;
 			}
@@ -813,10 +832,12 @@ namespace Microsoft.Xna.Framework
 			window.INTERNAL_OnOrientationChanged();
 		}
 
-		public static bool SupportsOrientationChanges()
+		public static bool IsMobilePlatform()
 		{
 			return OSVersion.Equals("iOS") || OSVersion.Equals("Android");
 		}
+
+		public static bool SupportsOrientationChanges() => IsMobilePlatform();
 
 		#endregion
 
@@ -854,6 +875,11 @@ namespace Microsoft.Xna.Framework
 				// Keyboard
 				if (evt.type == SDL.SDL_EventType.SDL_KEYDOWN)
 				{
+					if (evt.key.keysym.sym == SDL.SDL_Keycode.SDLK_AC_BACK)
+					{
+						PhoneBackButtonPressed = true;
+					}
+
 					Keys key = ToXNAKey(ref evt.key.keysym);
 					if (!Keyboard.keys.Contains(key))
 					{
@@ -888,6 +914,11 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
 				{
+					if (evt.key.keysym.sym == SDL.SDL_Keycode.SDLK_AC_BACK)
+					{
+						PhoneBackButtonPressed = false;
+					}
+
 					Keys key = ToXNAKey(ref evt.key.keysym);
 					if (Keyboard.keys.Remove(key))
 					{
@@ -955,6 +986,7 @@ namespace Microsoft.Xna.Framework
 				{
 					// Windows only notices a touch screen once it's touched
 					TouchPanel.TouchDeviceExists = true;
+					TouchPanel.LastActiveTouchId = (int)evt.tfinger.touchId;
 
 					TouchPanel.INTERNAL_onTouchEvent(
 						(int) evt.tfinger.fingerId,
@@ -1717,7 +1749,12 @@ namespace Microsoft.Xna.Framework
 			IntPtr device = INTERNAL_devices[index];
 			if (device == IntPtr.Zero)
 			{
-				return new GamePadState();
+				GamePadState padState = new GamePadState();
+				if ((index == 0) && PhoneBackButtonPressed)
+				{
+					padState.Buttons = new GamePadButtons(Buttons.Back);
+				}
+				return padState;
 			}
 
 			// Sticks
@@ -2265,7 +2302,12 @@ namespace Microsoft.Xna.Framework
 			 *
 			 * -caleb
 			 */
-			bool touchDeviceExists = SDL.SDL_GetNumTouchDevices() > 0;
+			if (TouchPanel.MouseAsTouch)
+			{
+				return new TouchPanelCapabilities(true, 1);
+			}
+
+			bool touchDeviceExists = (SDL.SDL_GetNumTouchDevices() > 0);
 			return new TouchPanelCapabilities(
 				touchDeviceExists,
 				touchDeviceExists ? 4 : 0
@@ -2289,10 +2331,9 @@ namespace Microsoft.Xna.Framework
 			} else
 			{
 				// Poll the touch device for all active fingers
-				long touchDevice = SDL.SDL_GetTouchDevice(0);
 				for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
 				{
-					SDL.SDL_Finger* finger = (SDL.SDL_Finger*)SDL.SDL_GetTouchFinger(touchDevice, i);
+					SDL.SDL_Finger* finger = (SDL.SDL_Finger*)SDL.SDL_GetTouchFinger(TouchPanel.LastActiveTouchId, i);
 					if (finger == null)
 					{
 						// No finger found at this index
@@ -2301,9 +2342,11 @@ namespace Microsoft.Xna.Framework
 					}
 
 					// Send the finger data to the TouchPanel
+					// The ID base is zero, sometimes OS like android make finger id negative
+					// It's not most games want really, they usually expect finger ID >= 1
 					TouchPanel.SetFinger(
 						i,
-						(int)finger->id,
+						Math.Abs((int)finger->id) + 1,
 						new Vector2(
 							(float)Math.Round(finger->x * TouchPanel.DisplayWidth),
 							(float)Math.Round(finger->y * TouchPanel.DisplayHeight)
@@ -2316,7 +2359,7 @@ namespace Microsoft.Xna.Framework
 		public static int GetNumTouchFingers()
 		{
 			return SDL.SDL_GetNumTouchFingers(
-				SDL.SDL_GetTouchDevice(0)
+				SDL.SDL_GetTouchDevice(TouchPanel.LastActiveTouchId)
 			);
 		}
 

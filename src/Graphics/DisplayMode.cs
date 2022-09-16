@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Constructor
 
-		internal DisplayMode(int width, int height, SurfaceFormat format)
+		public DisplayMode(int width, int height, SurfaceFormat format)
 		{
 			Width = width;
 			Height = height;
