@@ -342,7 +342,7 @@ namespace Microsoft.Xna.Framework
 				float.IsNaN(Y) ||
 				float.IsNaN(Z)	)
 			{
-				throw new InvalidOperationException("Vector3 contains NaNs!");
+				//throw new InvalidOperationException("Vector3 contains NaNs!");
 			}
 		}
 

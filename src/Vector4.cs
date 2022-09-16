@@ -301,7 +301,7 @@ namespace Microsoft.Xna.Framework
 				float.IsNaN(Z) ||
 				float.IsNaN(W)	)
 			{
-				throw new InvalidOperationException("Vector4 contains NaNs!");
+				//throw new InvalidOperationException("Vector4 contains NaNs!");
 			}
 		}
 

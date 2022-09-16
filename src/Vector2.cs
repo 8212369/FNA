@@ -225,7 +225,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (float.IsNaN(X) || float.IsNaN(Y))
 			{
-				throw new InvalidOperationException("Vector2 contains NaNs!");
+				//throw new InvalidOperationException("Vector2 contains NaNs!");
 			}
 		}
 
