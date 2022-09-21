@@ -52,12 +52,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				GraphicsDevice.Textures.RemoveDisposedTexture(this);
-				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
-				FNA3D.FNA3D_AddDisposeTexture(
-					GraphicsDevice.GLDevice,
-					texture
-				);
+				if (GraphicsDevice != null)
+				{
+					GraphicsDevice.Textures.RemoveDisposedTexture(this);
+					GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
+					FNA3D.FNA3D_AddDisposeTexture(
+						GraphicsDevice.GLDevice,
+						texture
+					);
+				}
 			}
 			base.Dispose(disposing);
 		}
