@@ -433,7 +433,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				if (!supportsOrientations)
+				// If current orientation is default, game rotates based off width/height min/max
+				if (!supportsOrientations || (gdi.PresentationParameters.DisplayOrientation == DisplayOrientation.Default))
 				{
 					gdi.PresentationParameters.BackBufferWidth =
 						PreferredBackBufferWidth;
