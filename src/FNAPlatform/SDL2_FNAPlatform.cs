@@ -1021,7 +1021,7 @@ namespace Microsoft.Xna.Framework
 				}
 
 				// Various Window Events...
-				else if (evt.type == SDL.SDL_EventType.SDL_WINDOWEVENT)
+				else if ((evt.type == SDL.SDL_EventType.SDL_WINDOWEVENT) && (SDL.SDL_GetWindowID(game.Window.Handle) == evt.window.windowID))
 				{
 					if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE)
 					{
@@ -1750,10 +1750,12 @@ namespace Microsoft.Xna.Framework
 			if (device == IntPtr.Zero)
 			{
 				GamePadState padState = new GamePadState();
+
 				if ((index == 0) && PhoneBackButtonPressed)
 				{
 					padState.Buttons = new GamePadButtons(Buttons.Back);
 				}
+
 				return padState;
 			}
 
