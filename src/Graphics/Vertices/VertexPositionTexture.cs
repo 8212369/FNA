@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 namespace Microsoft.Xna.Framework.Graphics
 {
 	[Serializable]
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct VertexPositionTexture : IVertexType
 	{
 		#region Private Properties

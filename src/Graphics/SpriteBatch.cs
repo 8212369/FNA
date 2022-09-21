@@ -1511,7 +1511,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Sprite Data Container Class
 
-		[StructLayout(LayoutKind.Sequential, Pack = 1)]
 		private struct VertexPositionColorTexture4 : IVertexType
 		{
 			public const int RealStride = 96;
@@ -1542,7 +1541,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private SpriteInfo Container Type
 
-		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		[StructLayout(LayoutKind.Sequential)]
 		private struct SpriteInfo
 		{
 			/* We store the hash instead of the Texture2D because
